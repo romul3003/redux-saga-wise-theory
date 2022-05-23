@@ -1,46 +1,39 @@
-import {
-  takeEvery,
-  put,
-  call,
-  fork,
-  spawn,
-  join,
-  select,
-} from 'redux-saga/effects'
+import { fork, spawn, call, all, delay } from 'redux-saga/effects'
 
-async function swapiGet(pattern) {
-  const request = await fetch(`https://swapi.dev/api/${pattern}`)
-  const data = await request.json()
-  return data
+function* auth() {
+  yield delay(2000)
+
+  console.log('auth ok')
+
+  return true
 }
 
-export function* loadPeople() {
-  const people = yield call(swapiGet, 'people')
-  yield put({ type: 'SET_PEOPLE', payload: people.results })
-  console.log('load people')
+function* loadUsers() {
+  const request = yield call(fetch, 'https://swapi.dev/api/people')
+  const data = yield call([request, request.json])
 
-  return people
-}
-export function* loadPlanets() {
-  const planets = yield call(swapiGet, 'planets')
-  yield put({ type: 'SET_PLANETS', payload: planets.results })
-  console.log('load planets')
+  console.log('data', data)
 }
 
-export function* workerSaga() {
-  console.log('run parallel tasks')
-  yield spawn(loadPeople) // use call if you need step by step
-  yield spawn(loadPlanets)
-
-  // const people = yield join(task)
-  const store = yield select((s) => s)
-  console.log('finish parallel tasks', store)
-}
-
-export function* watchLoadDataSaga() {
-  yield takeEvery('LOAD_DATA', workerSaga)
+export function* loadBasicData() {
+  yield all([fork(auth), fork(loadUsers)])
 }
 
 export default function* rootSaga() {
-  yield fork(watchLoadDataSaga)
+  const sagas = [loadBasicData]
+
+  const retrySagas = sagas.map((saga) =>
+    spawn(function* () {
+      while (true) {
+        try {
+          yield call(saga)
+          break
+        } catch (e) {
+          console.log(e)
+        }
+      }
+    })
+  )
+
+  yield all(retrySagas)
 }

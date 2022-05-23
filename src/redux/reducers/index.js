@@ -1,29 +1,5 @@
-const initial = {
-  people: [],
-  planets: [],
-}
+const initial = {}
 
 export default function reducer(state = initial, action) {
-  switch (action.type) {
-    case 'SET_PEOPLE': {
-      return {
-        ...state,
-        people: {
-          ...state.people,
-          ...action.payload,
-        },
-      }
-    }
-    case 'SET_PLANETS': {
-      return {
-        ...state,
-        planets: {
-          ...state.people,
-          ...action.payload,
-        },
-      }
-    }
-    default:
-      return state
-  }
+  return state
 }
