@@ -4,10 +4,20 @@ import { createBrowserHistory } from 'history'
 
 export const history = createBrowserHistory()
 
-const initial = {}
+const initial = {
+  blog: {},
+}
 
 export function appReducer(state = initial, action) {
-  return state
+  switch (action.type) {
+    case 'BLOG_LOADED':
+      return {
+        ...state,
+        blog: action.payload,
+      }
+    default:
+      return state
+  }
 }
 
 const rootReducer = combineReducers({

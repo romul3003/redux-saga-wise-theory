@@ -12,22 +12,20 @@ import NotFound from './pages/NotFound'
 import './index.css'
 
 ReactDOM.render(
-  <React.StrictMode>
-    <Provider store={store}>
-      <ConnectedRouter history={history}>
-        <Switch>
-          <Route path="/" exact>
-            <App />
-          </Route>
-          <Route path="/blog" exact>
-            <Blog />
-          </Route>
-          <Route path="*">
-            <NotFound />
-          </Route>
-        </Switch>
-      </ConnectedRouter>
-    </Provider>
-  </React.StrictMode>,
+  <Provider store={store}>
+    <ConnectedRouter history={history}>
+      <Switch>
+        <Route path="/" exact>
+          <App />
+        </Route>
+        <Route path="/blog" exact>
+          <Blog />
+        </Route>
+        <Route path="*">
+          <NotFound />
+        </Route>
+      </Switch>
+    </ConnectedRouter>
+  </Provider>,
   document.getElementById('root')
 )
