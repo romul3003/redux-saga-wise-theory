@@ -1,14 +1,12 @@
-import { spawn, call, all, take, fork, cancel } from 'redux-saga/effects'
+import { spawn, call, all, take, actionChannel } from 'redux-saga/effects'
 import loadBasicData from './initialSagas'
 import pageLoaderSaga from './pageLoaderSaga'
 
-export function* fetchPlanets(signal) {
+export function* fetchPlanets() {
   // eslint-disable-next-line no-console
   console.log('LOAD_SOME_DATA starts')
 
-  const response = yield call(fetch, 'https://swapi.dev/api/planets', {
-    signal,
-  })
+  const response = yield call(fetch, 'https://swapi.dev/api/planets')
   const data = yield call([response, response.json])
 
   // eslint-disable-next-line no-console
@@ -16,20 +14,12 @@ export function* fetchPlanets(signal) {
 }
 
 export function* loadOnAction() {
-  // yield takeLatest('LOAD_SOME_DATA', fetchPlanets)
-  let task
-  let abortController = new AbortController()
+  const channel = yield actionChannel('LOAD_SOME_DATA')
 
   while (true) {
-    yield take('LOAD_SOME_DATA')
+    yield take(channel)
 
-    if (task) {
-      abortController.abort()
-      yield cancel(task)
-      abortController = new AbortController()
-    }
-
-    task = yield fork(fetchPlanets, abortController.signal)
+    yield call(fetchPlanets)
   }
 }
 
